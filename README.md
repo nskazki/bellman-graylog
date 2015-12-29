@@ -49,10 +49,10 @@ bellman.warn('hi graylog! %s - %s - %s - %s',
 {
     silent: false,
     baseMsg: {
-        version: '1.1',   // GELF spec version
-        appVersion: '...' // package.version || unknown version
-        facility: '...'   // package.name || app-dir        
-        host: '...'       // hostname -f || os.hostname()
+        version: '1.1',    // GELF spec version
+        appVersion: '...', // package.version || unknown version
+        facility: '...',   // package.name || app-dir        
+        host: '...'        // hostname -f || os.hostname()
     },
     levelMap: {
       emergency: 0,

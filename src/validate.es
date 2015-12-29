@@ -52,7 +52,7 @@ jjv.addSchema('config', {
     },
     adapterName: {
       type: 'string',
-      enum: [ 'upd', 'tcp' ]
+      enum: [ 'udp', 'tcp' ]
     },
     adapterOptions: {
       type: 'object',
