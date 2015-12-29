@@ -1,0 +1,44 @@
+{
+  "name": "bellman-graylog",
+  "version": "1.0.0",
+  "description": "graylog support for bellman (node.js logger module)",
+  "main": "src-build",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "babel src --retain-lines --out-dir src-build",
+    "eslint": "eslint $(find . -not -path '*/*-build/*' -and -not -path '*/node_modules/*' -type f -name '*.es')",
+    "test": "npm run eslint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nskazki/bellman-graylog.git"
+  },
+  "keywords": [
+    "bellman",
+    "gelf-pro",
+    "logger",
+    "graylog",
+    "tcp",
+    "udp"
+  ],
+  "author": "nskazki@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nskazki/bellman-graylog/issues"
+  },
+  "homepage": "https://github.com/nskazki/bellman-graylog#readme",
+  "dependencies": {
+    "bluebird": "^3.1.1",
+    "clear-require": "^1.0.1",
+    "debug": "^2.2.0",
+    "gelf-pro": "^0.2.0",
+    "jjv": "^1.0.2",
+    "pkginfo": "^0.3.1",
+    "simple-debugger": "^1.0.3"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babel-eslint": "^4.1.6",
+    "eslint": "1.10.1"
+  }
+}
