@@ -1,14 +1,14 @@
 'use strict'
 
 import { find as pkFind } from 'pkginfo'
-import { isString, trim, isNull } from 'lodash'
+import { isString, trim, isNull, chain } from 'lodash'
 import { execSync } from 'child_process'
 import { hostname } from 'os'
-import { dirname as dir, basename as base } from 'path'
+import { dirname, basename } from 'path'
 
 export function projectVersion() {
   try {
-    let version = require(pkFind(module)).version
+    let { version } = projectRootPackage()
     if (isString(version) && (trim(version).length > 0)) {
       return trim(version)
     } else {
@@ -29,9 +29,25 @@ export function projectHost() {
   }
 }
 
+export function projectRootModule() {
+  return (function _(module) {
+    return isNull(module.parent)
+      ? module
+      : _(module.parent)
+  })(module)
+}
+
+export function projectRootPackage() {
+  return chain(module)
+    .thru(projectRootModule)
+    .thru(pkFind)
+    .thru(require)
+    .value()
+}
+
 export function projectName() {
   try {
-    let name = require(pkFind(module)).name
+    let { name } = projectRootPackage()
     if (isString(name) && (trim(name).length > 0)) {
       return trim(name)
     } else {
@@ -45,12 +61,9 @@ export function projectName() {
 export function projectDir() {
   try {
     let cwd = process.cwd()
-    return (function _(module) {
-      return isNull(module.parent)
-        ? `${base(cwd)}${dir(module.filename).replace(cwd, '')}`
-        : _(module.parent)
-    })(module)
-  } catch (err) {
+    let { filename } = projectRootModule()
+    return `${basename(cwd)}${dirname(filename).replace(cwd, '')}`
+  } catch (_err) {
     return `[REPL on ${projectHost()}]`
   }
 }
