@@ -1,8 +1,9 @@
 'use strict'
 
 import { debugEvents, debugMethods } from 'simple-debugger'
-import { extend, pick, trim, isNumber,
-  isString, isRegExp, isFunction } from 'lodash'
+import { extend, pick, trim,
+  isNumber, isString, isRegExp,
+  isFunction, isObject } from 'lodash'
 import { projectVersion, projectName, projectHost } from './projectInfo'
 import { inspect } from 'util'
 import P from 'bluebird'
@@ -140,7 +141,7 @@ export default class BellmanGraylog extends EventEmitter {
     }
 
     let frmMsgArgs = (rawMsgArgs || [])
-      .map(arg => (arg.message && arg.stack)
+      .map(arg => (isObject(arg) && arg.message && arg.stack)
         ? { message: arg.message, stack: arg.stack.replace(/ {4}/g, '\t') }
         : arg)
       .map(arg => (isFunction(arg) || isRegExp(arg))
