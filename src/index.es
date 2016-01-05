@@ -1,9 +1,9 @@
 'use strict'
 
 import { debugEvents, debugMethods } from 'simple-debugger'
-import { extend, pick, trim,
-  isNumber, isString, isRegExp,
-  isFunction, isObject } from 'lodash'
+import { extend, pick, trim, map, mapValues,
+  isArray, isNumber, isString, isRegExp,
+  isFunction, isObject, isBoolean } from 'lodash'
 import { projectVersion, projectName, projectHost } from './projectInfo'
 import { inspect } from 'util'
 import P from 'bluebird'
@@ -104,6 +104,24 @@ export default class BellmanGraylog extends EventEmitter {
     return this
   }
 
+  _normalizeMeta(object) {
+    let myMap = isArray(object)
+      ? map
+      : mapValues
+
+    return myMap(object, v => {
+      if (isObject(v) && v.message && v.stack) {
+        return { message: v.message, stack: v.stack }
+      } else if (isFunction(v) || isRegExp(v) || isBoolean(v)) {
+        return v.toString()
+      } else if (isObject(v)) {
+        return this._normalizeMeta(v)
+      } else {
+        return v
+      }
+    })
+  }
+
   handler({ level: humanLevel, caller: file, time: humanTime, message: fmtMsg, args: rawMsgArgs }) {
     if (this._config.silent) {
       let res = `BellmanGraylog#handler skip: module was silent!`
@@ -114,8 +132,10 @@ export default class BellmanGraylog extends EventEmitter {
     // prepare resMsg
     let level = this._levelMap[humanLevel]
     if (!isNumber(level)) {
-      return this.emit('error', new Error(`BellmanGraylog#handler problem: level not found! \
-        \n\t humanLevel: %{humanLevel}`))
+      let err = new Error(`BellmanGraylog#handler problem: level not found! \
+        \n\t humanLevel: %{humanLevel}`)
+      bgDebug(err)
+      return this.emit('error', err)
     }
 
     if (level > this._levelMinNum) {
@@ -140,31 +160,28 @@ export default class BellmanGraylog extends EventEmitter {
       return this.emit('skip', res)
     }
 
-    let frmMsgArgs = (rawMsgArgs || [])
-      .map(arg => (isObject(arg) && arg.message && arg.stack)
-        ? { message: arg.message, stack: arg.stack.replace(/ {4}/g, '\t') }
-        : arg)
-      .map(arg => (isFunction(arg) || isRegExp(arg))
-        ? arg.toString()
-        : arg)
+    let frmMsgArgs = this._normalizeMeta(rawMsgArgs || [])
     let msgArgs = myUnescape(inspect(frmMsgArgs, { depth: null }))
 
     let full_message = fmtMsg
-
-    let resMsg = extend({}, this._baseMsg,
-      { level, humanLevel, humanTime, file, short_message, full_message, msgArgs })
+    let curMsg = { level, humanLevel, humanTime, file, short_message, full_message, msgArgs }
+    let resMsg = this._normalizeMeta(extend({}, this._baseMsg, curMsg))
 
     // prepare and send gelfMsg
     let gelfMsg = this._gelf.getStringFromObject(resMsg)
     return P
       .fromNode(cb => this._gelf.send(gelfMsg, cb))
-      .then(res => this.emit('send', gelfMsg, res))
+      .then(res => {
+        bgDebug('send', gelfMsg)
+        this.emit('send', gelfMsg, res)
+      })
       .catch((rawErr = {}) => {
         let message = `BellmanGraylog#handler problem: gelf-pro return error! \
           \n\t err: ${rawErr.message || inspect(rawErr)}`
         let err = rawErr.message
           ? extend(rawErr, { message })
           : new Error(message)
+        bgDebug(err)
         this.emit('error', err)
       })
   }
