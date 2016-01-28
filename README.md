@@ -38,7 +38,7 @@ bellman.warn('hi graylog! %s - %s - %s - %s',
 
 * `silent` - флаг, будучи установленным в true отключает отправку сообщений.
 * `baseMsg` - объект который послужит основой для всех прочих сообщений.
-* `levelMap` - объект позволяющий расширить базовый [levelMap](https://github.com/nskazki/bellman-graylog/blob/master/src%2Findex.es#L50)
+* `levelMap` - объект позволяющий расширить базовый [levelMap](https://github.com/nskazki/bellman-graylog/blob/master/src%2Findex.es6#L50)
 * `levelMin` - имя порогового уровня отправки сообщений. 
 * `adapterName` - опция для [gelf-pro](https://github.com/kkamkou/node-gelf-pro)
 * `adapterOptions` - опция для [gelf-pro](https://github.com/kkamkou/node-gelf-pro)
