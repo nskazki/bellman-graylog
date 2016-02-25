@@ -133,7 +133,7 @@ export default class BellmanGraylog extends EventEmitter {
     let level = this._levelMap[humanLevel]
     if (!isNumber(level)) {
       let err = new Error(`BellmanGraylog#handler problem: level not found! \
-        \n\t humanLevel: %{humanLevel}`)
+        \n\t humanLevel: ${humanLevel}`)
       bgDebug(err)
       return this.emit('error', err)
     }
