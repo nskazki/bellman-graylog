@@ -1,6 +1,6 @@
 {
   "name": "bellman-graylog",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "graylog support for bellman (node.js logger module)",
   "main": "src-build",
   "scripts": {
